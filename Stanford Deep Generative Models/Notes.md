@@ -185,3 +185,39 @@ Use convolutional architecture to predict next pixel given context (a neighborho
 
 Challenge: Has to be autoregressive. Masked convolutions preserve raster scan
 order. Additional masking for colors order.
+
+## Maximum likelihood learning
+Lets assume that the domain is governed by some underlying distribution Pdata. We are given a dataset D of m samples from Pdata. The standard assumption is that the data instances are independent and
+identically distributed (IID). We are also given a family of models M, and our task is to learn some
+“good” model ˆM∈M (i.e., in this family) that defines a distribution p ˆM. The goal of learning is to return a model ˆM that precisely captures the distribution Pdata from which our data was sampled. This is in general not achievable because of:
+* Limited data
+* Computational reasons
+
+What is "best"? This depends on what we want to do:
+* Density Estimation
+* Specific prediction tasks
+* Structure or knowledge discovery
+
+We want to learn the full distribution so that later we can answer any probabilistic inference query. In this setting we can view the learning problem as density estimation. We want to construct Pθ as ”close” as possible to Pdata.
+ 
+ 
+ How should we measure distance between distributions? Kullback-Leibler divergence (KL-divergence)
+ ```
+D (p‖q) = ∑p(x)*(log (p(x)/q(x)))
+ ```
+ *Note that KL-duvergence is asymmetric
+ 
+ Now we have:
+ ```
+D(Pdata||Pθ) = Ex∼Pdata[log(Pdata(x)/Pθ(x))]
+              = Ex∼Pdata [log Pdata(x)] −Ex∼Pdata [log Pθ(x)]
+ ```
+ 
+ So minimizing KL divergence is equivalent to maximizing the expected log-likelihood.
+ ```
+ maxPθ [(1/|D|) * ∑log Pθ(x)]
+ Pθ(x(1),··· ,x(m)) = ∏Pθ(x)
+ ```
+ 
+ ## Latent variable models
+ 
