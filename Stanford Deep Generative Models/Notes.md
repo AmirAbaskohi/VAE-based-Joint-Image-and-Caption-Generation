@@ -240,8 +240,6 @@ Latent variables z correspond to high level features.
 * z ∼Categorical(1,··· ,K )
 * p(x |z = k ) = N (μk ,Σk )
 
-![image](https://user-images.githubusercontent.com/50926437/132957807-6fc1ec83-addc-4641-ac58-847a4c53ad2b.png)
-
 ### Micture models
 Combine simple models into a more complex and expressive one.
 
