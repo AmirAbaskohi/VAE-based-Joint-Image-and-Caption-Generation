@@ -220,4 +220,98 @@ D(Pdata||Pθ) = Ex∼Pdata[log(Pdata(x)/Pθ(x))]
  ```
  
  ## Latent variable models
- 
+Lots of variability in images x due to gender, eye color, hair color,pose, etc. However, unless images are annotated, these factors of variation are not explicitly available (latent)
+
+Explicitly model these factors using latent variables z.
+
+![image](https://user-images.githubusercontent.com/50926437/132957570-588384c3-df4d-4c2c-b25f-1cadcda443c6.png)
+
+Latent variables z correspond to high level features.
+* If z chosen properly, p(x|z) could be much simpler than p(x)
+* If we had trained this model, then we could identify features via p(z |x), e.g., p(EyeColor = Blue|x)
+
+### Deep latent variable model
+* z ∼N(0,1)
+* p(x |z) = N (μθ(z),Σθ(z)) where μθ,Σθ are neural network
+* Hope that after training, z will correspond to meaningful latent factors of variation (features). Unsupervised representation learning
+* As before, features can be computed via p(z |x)
+
+### Mixture of guassians
+* z ∼Categorical(1,··· ,K )
+* p(x |z = k ) = N (μk ,Σk )
+
+![image](https://user-images.githubusercontent.com/50926437/132957807-6fc1ec83-addc-4641-ac58-847a4c53ad2b.png)
+
+### Micture models
+Combine simple models into a more complex and expressive one.
+
+```
+p(x) = ∑p(x,z) = ∑p(z)p(x |z) = ∑p(z = k ) N(x; μk ,Σk )
+```
+
+### Variational Autoencoder
+![image](https://user-images.githubusercontent.com/50926437/132957865-0709ed46-9829-464f-94eb-6de83ce2582c.png)
+
+A mixture of an infinite number of Gaussians:
+* z ∼N(0,I )
+* p(x |z) = N (μθ(z),Σθ(z)) where μθ,Σθare neural networks
+    * μθ(z) = σ(Az + c ) = (σ(a1z + c1),σ(a2z + c2)) = (μ1(z),μ2(z))
+    * Σθ(z) = diag (exp(σ(B z + d )))
+    * θ = (A,B ,c ,d )
+* Even though p(x |z) is simple, the marginal p(x) is very complex/flexible
+
+
+## Extra: What are VAEs(Variational Autoencoders)
+
+Among these deep generative models, two major families stand out and deserve a special attention: Generative Adversarial Networks (GANs) and Variational Autoencoders (VAEs).
+
+![image](https://user-images.githubusercontent.com/50926437/132959268-c3b04c19-51f8-40c9-9b16-bec3cd3dbfb4.png)
+
+In a nutshell, a VAE is an autoencoder whose encodings distribution is regularised during the training in order to ensure that its latent space has good properties allowing us to generate some new data. Moreover, the term “variational” comes from the close relation there is between the regularisation and the variational inference method in statistics.
+
+### Dimensionality reduction, PCA and autoencoders
+In machine learning, dimensionality reduction is the process of reducing the number of features that describe some data. This reduction is done either by selection (only some existing features are conserved) or by extraction (a reduced number of new features are created based on the old features) and can be useful in many situations that require low dimensional data (data visualisation, data storage, heavy computation…). 
+
+First, let’s call encoder the process that produce the “new features” representation from the “old features” representation (by selection or by extraction) and decoder the reverse process. Dimensionality reduction can then be interpreted as data compression where the encoder compress the data (from the initial space to the encoded space, also called latent space) whereas the decoder decompress them. Of course, depending on the initial data distribution, the latent space dimension and the encoder definition, this compression can be lossy, meaning that a part of the information is lost during the encoding process and cannot be recovered when decoding.
+
+![image](https://user-images.githubusercontent.com/50926437/132959364-6ed92c2e-e6de-4c5e-9c83-d356a6e65c9b.png)
+
+For a given set of possible encoders and decoders, we are looking for the pair that keeps the maximum of information when encoding and, so, has the minimum of reconstruction error when decoding.
+
+PCA is looking for the best linear subspace of the initial space (described by an orthogonal basis of new features) such that the error of approximating the data by their projections on this subspace is as small as possible.
+
+![image](https://user-images.githubusercontent.com/50926437/132959428-3641bee5-36e6-4b72-87f8-a86911bdd5dd.png)
+
+
+### Autoencoders
+Let’s now discuss autoencoders and see how we can use neural networks for dimensionality reduction. The general idea of autoencoders is pretty simple and consists in setting an encoder and a decoder as neural networks and to learn the best encoding-decoding scheme using an iterative optimisation process.
+
+Intuitively, the overall autoencoder architecture (encoder+decoder) creates a bottleneck for data that ensures only the main structured part of the information can go through and be reconstructed.
+
+![image](https://user-images.githubusercontent.com/50926437/132959478-40d2f5a8-9eb9-4802-ba4e-17e14807cde8.png)
+
+
+### Variational Autoencoders
+
+#### Limitations of autoencoders for content generation
+
+At this point, a natural question that comes in mind is “what is the link between autoencoders and content generation?”. Indeed, once the autoencoder has been trained, we have both an encoder and a decoder but still no real way to produce any new content. At first sight, we could be tempted to think that, if the latent space is regular enough (well “organized” by the encoder during the training process), we could take a point randomly from that latent space and decode it to get a new content. The decoder would then act more or less like the generator of a Generative Adversarial Network.
+
+![image](https://user-images.githubusercontent.com/50926437/132959594-15cc6e5a-3d43-42f7-befa-41b0e974e8cb.png)
+
+However, the regularity of the latent space for autoencoders is a difficult point that depends on the distribution of the data in the initial space, the dimension of the latent space and the architecture of the encoder. So, it is pretty difficult (if not impossible) to ensure, a priori, that the encoder will organize the latent space in a smart way compatible with the generative process we just described.
+
+![image](https://user-images.githubusercontent.com/50926437/132959682-5ccc7a20-ec31-4dfd-a327-2b828856d8bb.png)
+
+#### Definition of variational autoencoders
+In order to be able to use the decoder of our autoencoder for generative purpose, we have to be sure that the latent space is regular enough. One possible solution to obtain such regularity is to introduce explicit regularisation during the training process.  A variational autoencoder can be defined as being an autoencoder whose training is regularised to avoid overfitting and ensure that the latent space has good properties that enable generative process.
+
+Just as a standard autoencoder, a variational autoencoder is an architecture composed of both an encoder and a decoder and that is trained to minimise the reconstruction error between the encoded-decoded data and the initial data. However, in order to introduce some regularisation of the latent space, we proceed to a slight modification of the encoding-decoding process: instead of encoding an input as a single point, we encode it as a distribution over the latent space.
+
+![image](https://user-images.githubusercontent.com/50926437/132959956-4a4499bf-1650-4964-811c-e0c9394d8f88.png)
+
+The reason why an input is encoded as a distribution with some variance instead of a single point is that it makes possible to express very naturally the latent space regularisation: the distributions returned by the encoder are enforced to be close to a standard normal distribution. 
+
+![image](https://user-images.githubusercontent.com/50926437/132960004-d5f78f69-91e9-44b8-a3c9-37f23099f21d.png)
+
+With this regularisation term, we prevent the model to encode data far apart in the latent space and encourage as much as possible returned distributions to “overlap”, satisfying this way the expected continuity and completeness conditions. 
