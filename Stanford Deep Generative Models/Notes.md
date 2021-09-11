@@ -11,6 +11,7 @@ Challenge: Understand complex, unstructured inputs. This can be in any area:
 * Computational Speech
 
 ![image info](./images/Richard.png)
+
 `Richard Feynman`: “What I cannot create, I do not understand”
 
 ## Statistical Generative Models
@@ -70,5 +71,15 @@ independencies to get compact representation.
 p(x1,...,xn ) = ∏p(xi |xAi )
 ```
 
+### Beysian networks
 
+A Bayesian network is specified by a directed acyclic graph G = (V ,E ) with:
+* One node i ∈ V for each random variable Xi
+* One conditional probability distribution (CPD) per node
 
+Graph G = (V ,E ) is called the structure of the Bayesian Network
+```
+p(x1,...xn ) = ∏p(xi |xPa(i))
+```
+
+![image info](./images/Richard.png)
