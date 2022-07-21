@@ -71,7 +71,6 @@ Training word2vec with recipe data:
 ```
 ./word2vec -hs 1 -negative 0 -window 10 -cbow 0 -iter 10 -size 300 -binary 1 -min-count 10 -threads 20 -train tokenized_text.txt -output vocab.bin
 ```
-The pre-trained word2vec model can be found in [vocab.bin](https://drive.google.com/file/d/1Qu2tiLPlCu9KaR2vhAc4T2dZlvPrKXAn/view?usp=sharing).
 
 
 
